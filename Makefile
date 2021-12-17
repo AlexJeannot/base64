@@ -16,7 +16,7 @@ DOBJS		= ./comp/
 
 
 # SOURCES
-SRCS 		=	main.c file.c error.c msg.c
+SRCS 		=	main.c file.c error.c msg.c encode.c decode.c
 
 
 # OBJS

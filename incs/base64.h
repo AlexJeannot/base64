@@ -24,14 +24,27 @@ typedef struct  s_message_base64
     u_int64_t           blocks_size;
 }               t_message_base64;
 
+typedef struct s_block
+{
+    u_int8_t a;
+    u_int8_t b;
+    u_int8_t c;
+}           t_block;
+
 
 void process_msg_base64(t_message_base64 *msg);
 void    fatal_error(t_message_base64 *msg, const char *reason);
 void process_file(t_message_base64 *msg, char *path);
 
+void encode_msg_base64(t_message_base64 *msg);
+
 // t_message   *allocate_msg(void);
 void        clean_msg(t_message_base64 *msg);
 void        clean_all_msg(void);
 int32_t     get_file(t_message_base64 *msg, char *path);
+
+u_int8_t is_last_block(u_int64_t total_block, u_int64_t current_block);
+
+void decode_msg_base64(t_message_base64 *msg);
 
 #endif
