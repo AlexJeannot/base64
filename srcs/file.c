@@ -1,6 +1,6 @@
 #include "../incs/base64.h"
 
-void    bytes_join(t_message *msg, char *buf, u_int64_t buf_length)
+void    bytes_join(t_message_base64 *msg, char *buf, u_int64_t buf_length)
 {
     char    *new_msg;
 
@@ -17,7 +17,7 @@ void    bytes_join(t_message *msg, char *buf, u_int64_t buf_length)
     msg->rc_size += buf_length;
 }
 
-int32_t     get_file(t_message *msg, char *path)
+int32_t     get_file(t_message_base64 *msg, char *path)
 {
     int32_t fd;
 
@@ -26,7 +26,7 @@ int32_t     get_file(t_message *msg, char *path)
     return (fd);
 }
 
-void get_file_content(t_message *msg, int32_t fd)
+void get_file_content(t_message_base64 *msg, int32_t fd)
 {
     // t_message   *msg;
     ssize_t     ret;
@@ -53,7 +53,7 @@ void get_file_content(t_message *msg, int32_t fd)
 //     ft_strncpy(msg->src, path, ft_strlen(path));
 // }
 
-void process_file(t_message *msg, char *path)
+void process_file(t_message_base64 *msg, char *path)
 {
     int32_t     fd;
 

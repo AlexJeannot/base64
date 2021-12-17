@@ -1,6 +1,6 @@
 #include "../incs/base64.h"
 
-void    fatal_error(t_message *msg, const char *reason)
+void    fatal_error(t_message_base64 *msg, const char *reason)
 {
     printf("Error: %s\n", reason);
     clean_msg(msg);
