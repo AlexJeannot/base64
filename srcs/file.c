@@ -4,9 +4,9 @@ void    bytes_join(t_message_base64 *msg, char *buf, u_int64_t buf_length)
 {
     char    *new_msg;
 
-    if (!(new_msg = (char *)malloc(msg->rc_size + buf_length + 1)))
+    if (!(new_msg = (char *)malloc(msg->rc_size + buf_length)))
         fatal_error(msg, "File bytes memory allocation");
-    bzero(new_msg, (msg->rc_size + buf_length + 1));
+    bzero(new_msg, (msg->rc_size + buf_length));
 
     memcpy(new_msg, msg->raw_content, msg->rc_size);
     memcpy(&(new_msg[msg->rc_size]), buf, buf_length);
@@ -30,13 +30,14 @@ void get_file_content(t_message_base64 *msg, int32_t fd)
 {
     // t_message   *msg;
     ssize_t     ret;
-    char        buf[1024];
+    char        buf[65535];
 
-    bzero(&buf[0], 1024);
-    while ((ret = read(fd, buf, 1023)) > 0) {
+    bzero(&buf[0], 65535);
+    while ((ret = read(fd, buf, 65534)) > 0) {
         buf[ret] = '\0';
         bytes_join(msg, &buf[0], ret);
-        bzero(&buf[0], 1024);
+        bzero(&buf[0], 65535);
+        // printf("ret = %zd\n", ret);
     }
     if (ret == -1)
         fatal_error(msg, "file reading");

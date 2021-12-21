@@ -4,6 +4,7 @@ void add_encoded_char(t_message_base64 *msg, u_int8_t nb)
 {
     char encoded_char;
 
+    encoded_char = '\0';
     if (nb <= 25)
         encoded_char = 'A' + nb;
     else if (nb > 25 && nb <= 51)
@@ -41,6 +42,20 @@ u_int8_t get_third_char(t_block *block)
 u_int8_t get_fourth_char(t_block *block)
 {
     return (block->c & 0b00111111);
+}
+
+void write_encoded(t_message_base64 *msg)
+{
+    u_int64_t count = 0;
+
+    for (; count < msg->pc_size; count++)
+    {
+        write(1, &msg->processed_content[count], 1);
+        if (count != 0 && (count + 1) % 64 == 0)
+            write(1, "\n", 1);
+    }
+    if (count != 0 && (count + 1) % 64 != 0)
+        write(1, "\n", 1);
 }
 
 void encode_msg_base64(t_message_base64 *msg)

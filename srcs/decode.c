@@ -6,6 +6,7 @@ u_int8_t add_decoded_char(char encoded_char)
 {
     u_int8_t bits;
 
+    bits = '\0';
     if (encoded_char >= 'A' && encoded_char <= 'Z')
         bits = encoded_char - 65;
     else if (encoded_char >= 'a' && encoded_char <= 'z')

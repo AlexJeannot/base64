@@ -47,4 +47,6 @@ u_int8_t is_last_block(u_int64_t total_block, u_int64_t current_block);
 
 void decode_msg_base64(t_message_base64 *msg);
 
+void write_encoded(t_message_base64 *msg);
+
 #endif
