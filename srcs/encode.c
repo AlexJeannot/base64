@@ -1,5 +1,9 @@
 #include "../incs/base64.h"
 
+/*
+** ENCODING UTILITY FUNCTIONS
+*/
+
 void add_encoded_char(t_message_base64 *msg, u_int8_t nb)
 {
     char encoded_char;
@@ -44,18 +48,34 @@ u_int8_t get_fourth_char(t_block *block)
     return (block->c & 0b00111111);
 }
 
-void write_encoded(t_message_base64 *msg)
-{
-    u_int64_t count = 0;
 
-    for (; count < msg->pc_size; count++)
-    {
-        write(1, &msg->processed_content[count], 1);
-        if (count != 0 && (count + 1) % 64 == 0)
-            write(1, "\n", 1);
+/*
+** ENCODING MAIN FUCNTIONS
+*/
+
+void format_decoded_msg(t_message_base64 *msg)
+{
+    msg->fc_size = (!(msg->rc_size % 3)) ? msg->rc_size : msg->rc_size + (3 - (msg->rc_size % 3));
+
+    if (msg->rc_size == msg->fc_size)
+        msg->fmt_content = msg->raw_content;
+    else {
+        if (!(msg->fmt_content = (char *)malloc(msg->fc_size)))
+            fatal_error(msg, "formated content memory allocation");
+        
+        bzero(msg->fmt_content, msg->fc_size);
+        memcpy(msg->fmt_content, msg->raw_content, msg->rc_size);
     }
-    if (count != 0 && (count + 1) % 64 != 0)
-        write(1, "\n", 1);
+}
+
+void prepare_encoded_output(t_message_base64 *msg)
+{
+    msg->pc_size = msg->fc_size + (msg->fc_size / 3);
+    msg->blocks_size = msg->fc_size / 3;
+
+    if (!(msg->processed_content = (char *)malloc(msg->pc_size + 1)))
+        fatal_error(msg, "Processed content memory allocation");
+    bzero(msg->processed_content, (msg->pc_size + 1));
 }
 
 void encode_msg_base64(t_message_base64 *msg)
@@ -85,4 +105,26 @@ void encode_msg_base64(t_message_base64 *msg)
             add_encoded_char(msg, get_fourth_char(block));
         }
     }
+}
+
+void write_encoded(t_message_base64 *msg)
+{
+    u_int64_t count = 0;
+
+    for (; count < msg->pc_size; count++)
+    {
+        write(1, &msg->processed_content[count], 1);
+        if (count != 0 && (count + 1) % 64 == 0)
+            write(1, "\n", 1);
+    }
+    if (count != 0 && (count + 1) % 64 != 0)
+        write(1, "\n", 1);
+}
+
+void process_encoding(t_message_base64 *msg)
+{
+    format_decoded_msg(&msg);
+    prepare_encoded_output(&msg);
+    encode_msg_base64(&msg);
+    write_encoded(&msg);
 }
