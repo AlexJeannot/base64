@@ -4,7 +4,7 @@
 ** ENCODING UTILITY FUNCTIONS
 */
 
-void add_encoded_char(t_message_base64 *msg, u_int8_t nb)
+void add_encoded_char(t_message *msg, u_int8_t nb)
 {
     char encoded_char;
 
@@ -23,7 +23,7 @@ void add_encoded_char(t_message_base64 *msg, u_int8_t nb)
     msg->processed_content[msg->cc_size++] = encoded_char;
 }
 
-void add_complement(t_message_base64 *msg)
+void add_complement(t_message *msg)
 {
     msg->processed_content[msg->cc_size++] = '=';
 }
@@ -53,7 +53,7 @@ u_int8_t get_fourth_char(t_block *block)
 ** ENCODING MAIN FUCNTIONS
 */
 
-void format_decoded_msg(t_message_base64 *msg)
+void format_decoded_msg(t_message *msg)
 {
     msg->fc_size = (!(msg->rc_size % 3)) ? msg->rc_size : msg->rc_size + (3 - (msg->rc_size % 3));
 
@@ -68,7 +68,7 @@ void format_decoded_msg(t_message_base64 *msg)
     }
 }
 
-void prepare_encoded_output(t_message_base64 *msg)
+void prepare_encoded_output(t_message *msg)
 {
     msg->pc_size = msg->fc_size + (msg->fc_size / 3);
     msg->blocks_size = msg->fc_size / 3;
@@ -78,7 +78,7 @@ void prepare_encoded_output(t_message_base64 *msg)
     bzero(msg->processed_content, (msg->pc_size + 1));
 }
 
-void encode_msg_base64(t_message_base64 *msg)
+void encode_msg_base64(t_message *msg)
 {
     t_block *block;
 
@@ -107,24 +107,30 @@ void encode_msg_base64(t_message_base64 *msg)
     }
 }
 
-void write_encoded(t_message_base64 *msg)
+void write_encoded(t_message *msg, t_args *args)
 {
     u_int64_t count = 0;
+    int32_t fd;
+
+    if (args->o == TRUE)
+        fd = get_file(msg, args->output, OUTPUT);
+    else
+        fd = 1;
 
     for (; count < msg->pc_size; count++)
     {
-        write(1, &msg->processed_content[count], 1);
-        if (count != 0 && (count + 1) % 64 == 0)
-            write(1, "\n", 1);
+        write(fd, &msg->processed_content[count], 1);
+        if (args->n == TRUE && count != 0 && (count + 1) % 64 == 0)
+            write(fd, "\n", 1);
     }
-    if (count != 0 && (count + 1) % 64 != 0)
-        write(1, "\n", 1);
+    if (args->n == FALSE || (count + 1) % 64 != 0)
+        write(fd, "\n", 1);
 }
 
-void process_encoding(t_message_base64 *msg)
+void process_encoding(t_message *msg, t_args *args)
 {
-    format_decoded_msg(&msg);
-    prepare_encoded_output(&msg);
-    encode_msg_base64(&msg);
-    write_encoded(&msg);
+    format_decoded_msg(msg);
+    prepare_encoded_output(msg);
+    encode_msg_base64(msg);
+    write_encoded(msg, args);
 }

@@ -32,7 +32,7 @@
 //     }
 // }
 
-void        clean_msg(t_message_base64 *msg)
+void        clean_msg(t_message *msg)
 {
     u_int8_t content_similar;
 

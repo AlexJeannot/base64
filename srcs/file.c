@@ -1,6 +1,6 @@
 #include "../incs/base64.h"
 
-void    bytes_join(t_message_base64 *msg, char *buf, u_int64_t buf_length)
+void    bytes_join(t_message *msg, char *buf, u_int64_t buf_length)
 {
     char    *new_msg;
 
@@ -17,16 +17,24 @@ void    bytes_join(t_message_base64 *msg, char *buf, u_int64_t buf_length)
     msg->rc_size += buf_length;
 }
 
-int32_t     get_file(t_message_base64 *msg, char *path)
+int32_t     get_file(t_message *msg, char *path, u_int8_t type)
 {
     int32_t fd;
 
-    if ((fd = open(path, O_RDONLY)) == -1)
-        fatal_error(msg, "file opening");
+    if (type == INPUT)
+    {
+        if ((fd = open(path, O_RDONLY)) == -1)
+            fatal_error(msg, "file opening");
+    }
+    else
+    {
+        if ((fd = open(path, O_WRONLY | O_CREAT, 0644)) == -1)
+            fatal_error(msg, "file opening");
+    }
     return (fd);
 }
 
-void get_file_content(t_message_base64 *msg, int32_t fd)
+void get_file_content(t_message *msg, int32_t fd)
 {
     // t_message   *msg;
     ssize_t     ret;
@@ -43,24 +51,21 @@ void get_file_content(t_message_base64 *msg, int32_t fd)
         fatal_error(msg, "file reading");
 }
 
-// void        set_file_context(t_message *msg, char *path)
+// void process_file(t_message *msg, t_args *args)
 // {
-//     msg->src_type = SRC_FILE;
+//     int32_t     fd;
 
-//     if (!(msg->src = (char *)malloc(ft_strlen(path) + 1)))
-//         fatal_error("file source memory allocation");
-//     bzero(msg->src, (ft_strlen(path) + 1));
+//     fd = get_file(msg, args->input);
+//     get_file_content(msg, fd);
 
-//     ft_strncpy(msg->src, path, ft_strlen(path));
+//     if (close(fd) == -1)
+//         fatal_error(msg, "file descriptor closing");
 // }
 
-void process_file(t_message_base64 *msg, char *path)
+void get_content(t_message *msg, t_args *args)
 {
-    int32_t     fd;
-
-    fd = get_file(msg, path);
-    get_file_content(msg, fd);
-    // set_file_context(msg, path);
-    if (close(fd) == -1)
-        fatal_error(msg, "file descriptor closing");
+    if (args->i == FALSE)
+        get_file_content(msg, STDIN_FILENO);
+    else
+        get_file_content(msg, get_file(msg, args->input, INPUT));
 }

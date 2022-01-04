@@ -54,7 +54,7 @@ void set_fourth_char(t_block *block, u_int8_t bits)
 ** DECODING MAIN FUCNTIONS
 */
 
-void format_encoded_msg(t_message_base64 *msg)
+void format_encoded_msg(t_message *msg)
 {
     u_int64_t nl_size = 0;
 
@@ -81,7 +81,7 @@ void format_encoded_msg(t_message_base64 *msg)
     }
 }
 
-void prepare_decoded_output(t_message_base64 *msg)
+void prepare_decoded_output(t_message *msg)
 {
     msg->pc_size = msg->fc_size - (msg->fc_size / 4);
     msg->blocks_size = msg->pc_size / 3;
@@ -91,7 +91,7 @@ void prepare_decoded_output(t_message_base64 *msg)
     bzero(msg->processed_content, (msg->pc_size + 1));
 }
 
-void decode_msg_base64(t_message_base64 *msg)
+void decode_msg_base64(t_message *msg)
 {
     t_block *block;
 
@@ -114,18 +114,25 @@ void decode_msg_base64(t_message_base64 *msg)
     }
 }
 
-void write_decoded(t_message_base64 *msg)
+void write_decoded(t_message *msg, t_args *args)
 {
+    int32_t fd;
+
+    printf("args->o = %u\n", args->o);
+    
+    if (args->o == TRUE)
+        fd = get_file(msg, args->output, OUTPUT);
+    else
+        fd = 1;
+    
     for (u_int64_t count = 0; count < msg->pc_size; count++)
-    {
-        write(1, &msg->processed_content[count], 1);
-    }
+        write(fd, &msg->processed_content[count], 1);
 }
 
-void process_decoding(t_message_base64 *msg)
+void process_decoding(t_message *msg, t_args *args)
 {
     format_encoded_msg(msg);
     prepare_decoded_output(msg);
     decode_msg_base64(msg);
-    write_decoded(msg);
+    write_decoded(msg, args);
 }
